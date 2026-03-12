@@ -44,8 +44,8 @@ glm::vec3 raytracer(const ray &ray, const glm::vec3 &camera_pos) {
 
   // 5. Setup Loop Variables
   glm::vec3 prev_pos3D = camera_pos;
-  double d_phi = 0.05; // Step size
-  int max_steps = 1000;
+  double d_phi = 0.1; // Step size
+  int max_steps = 500;
   int curr_steps = 0;
 
   // 6. RK4 step process:
@@ -54,7 +54,7 @@ glm::vec3 raytracer(const ray &ray, const glm::vec3 &camera_pos) {
   glm::vec3 result = glm::vec3(0, 0, 0); // for color
 
   while (curr_steps < max_steps) {
-    if (is_debug_ray && curr_steps % 200 == 0) {
+    if (is_debug_ray && curr_steps % 1000 == 0) {
       std::cout << "[Debug Ray] RK4 Step: " << curr_steps << "/" << max_steps
                 << " | r = " << (1.0 / u) << std::endl;
     }
@@ -100,14 +100,32 @@ glm::vec3 raytracer(const ray &ray, const glm::vec3 &camera_pos) {
     // B. Escaped to infinity (Hit the skybox)
     if (r > 100.0) {
       glm::vec3 final_dir = normalize(curr_pos3D - prev_pos3D);
-      result = sample_skybox(final_dir); // sample checkerboard for debugging
+      result = black_skybox(final_dir); // sample checkerboard for debugging
       break;
     }
 
-    // C. Intersected the Accretion Disk (Y=0 plane)
-    if (prev_pos3D.y * curr_pos3D.y < 0.0) {
-      float t = (float)(std::abs(prev_pos3D.y) /
-                        (std::abs(prev_pos3D.y) + std::abs(curr_pos3D.y)));
+    // C. Intersected the Accretion Disk (Rotated plane)
+    // 1. Calculate disc normal from rotation angles
+    float rad_x = disc_rot_x * PI / 180.0f;
+    float rad_z = disc_rot_z * PI / 180.0f;
+
+    // Initial normal is (0, 1, 0)
+    glm::vec3 disc_normal = glm::vec3(0.0f, 1.0f, 0.0f);
+    // Rotate around X axis
+    disc_normal = glm::rotate(glm::mat4(1.0f), rad_x, glm::vec3(1, 0, 0)) *
+                  glm::vec4(disc_normal, 0.0f);
+    // Rotate around Z axis
+    disc_normal = glm::rotate(glm::mat4(1.0f), rad_z, glm::vec3(0, 0, 1)) *
+                  glm::vec4(disc_normal, 0.0f);
+    disc_normal = normalize(disc_normal);
+
+    // 2. Plane intersection check: dot(pos, normal) changes sign
+    double prev_dot = dot(prev_pos3D, disc_normal);
+    double curr_dot = dot(curr_pos3D, disc_normal);
+
+    if (prev_dot * curr_dot < 0.0) {
+      float t = (float)(std::abs(prev_dot) /
+                        (std::abs(prev_dot) + std::abs(curr_dot)));
       glm::vec3 hit_point = prev_pos3D + (curr_pos3D - prev_pos3D) * t;
       float dist_to_center = glm::length(hit_point);
 

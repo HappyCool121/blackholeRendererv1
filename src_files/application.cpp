@@ -61,6 +61,11 @@ glm::vec3 sample_skybox(glm::vec3 dir) {
   }
 }
 
+glm::vec3 black_skybox(glm::vec3 dir) {
+  // Returns pure black for all directions
+  return glm::vec3(0.0, 0.0, 0.0);
+}
+
 void LogFrame(int frameID, Uint32 elapsedMS) {
   std::cout << "[Frame " << frameID << "] "
             << "Time: " << elapsedMS << "ms | "

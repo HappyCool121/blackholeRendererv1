@@ -30,6 +30,10 @@ inline float cameraFOV = 90.0f;
 inline float FOVscale =
     (HEIGHT / 2.0f) / std::tan(cameraFOV * 0.5f * 3.14159f / 180.0f);
 
+// accretion disc settings
+inline float disc_rot_x = 0.0f;
+inline float disc_rot_z = 0.0f;
+
 // continuous render flags
 inline bool continuousRender;
 inline bool toRender = true;
@@ -70,6 +74,8 @@ void initIMGUI(AppContext app);
 // =================================
 
 glm::vec3 sample_skybox(glm::vec3 dir);
+
+glm::vec3 black_skybox(glm::vec3 dir);
 
 // =================================
 // Debug Log

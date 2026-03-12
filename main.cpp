@@ -10,8 +10,7 @@ const int FRAME_DELAY = 1000 / TARGET_FPS;
 
 // global variables
 // camera settings
-glm::vec3 camera_pos = {0.0f, 0.0f,
-                        -30.0f}; // we will be raising the camera later on!
+glm::vec3 camera_pos = {0.0f, 0.0f, -18.0f};
 
 // checkerboard texture wall
 glm::vec3 skybox_pos = {0.0f, 0.0f, 50.0f};
@@ -29,7 +28,7 @@ void RenderImage() {
 
   // 2. Loop over every pixel
   for (int y = 0; y < HEIGHT; y++) {
-    // Print progress every 10%
+    // Print progress every 10% of rays computed
     if (y % (HEIGHT / 10) == 0) {
       std::cout << "Rendering: " << (int)((float)y / HEIGHT * 100.0f) << "%"
                 << std::endl;
@@ -108,6 +107,11 @@ int main(int argc, char *argv[]) {
     if (ImGui::Button("Render image (R)")) {
       RenderImage();
     }
+
+    ImGui::Separator();
+    ImGui::Text("Accretion Disc Rotation");
+    ImGui::SliderFloat("Rotation X", &disc_rot_x, -180.0f, 180.0f);
+    ImGui::SliderFloat("Rotation Z", &disc_rot_z, -180.0f, 180.0f);
     ImGui::End();
 
     ImGui::Render();
